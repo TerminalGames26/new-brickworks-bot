@@ -1,36 +1,27 @@
-const GROUP_ID = process.env.GROUP_ID;
-const API_KEY = process.env.ROBLOX_API_KEY;
+name: Epic Brickworks Join Bot
 
-async function main() {
-    const response = await fetch(
-        `https://apis.roblox.com/cloud/v2/groups/${GROUP_ID}/join-requests`,
-        {
-            headers: {
-                "x-api-key": API_KEY
-            }
-        }
-    );
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
 
-    const data = await response.json();
+permissions:
+  contents: read
 
-    console.log("HTTP status:", response.status);
-    console.log(
-        "Pending requests:",
-        data.groupJoinRequests?.length ?? 0
-    );
+jobs:
+  bot:
+    runs-on: ubuntu-latest
 
-    for (const request of data.groupJoinRequests ?? []) {
-        console.log(
-            "Request:",
-            request.id,
-            "User:",
-            request.user?.userId,
-            request.user?.username
-        );
-    }
-}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-main().catch(error => {
-    console.error(error);
-    process.exit(1);
-});
+      - name: Run bot
+        env:
+          GROUP_ID: ${{ secrets.GROUP_ID }}
+          ROLE_3L: ${{ secrets.ROLE_3L }}
+          ROLE_4L: ${{ secrets.ROLE_4L }}
+          ROLE_5L: ${{ secrets.ROLE_5L }}
+          ROLE_VERIFIED: ${{ secrets.ROLE_VERIFIED }}
+          ROBLOX_API_KEY: ${{ secrets.ROBLOX_API_KEY }}
+        run: node bot.js
